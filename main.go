@@ -23,7 +23,7 @@ type HandlerConfig struct {
 }
 
 const (
-	outputTemplate = `{{ if ne (len .) 0 }}Found {{ (len .) }} new tickets\n{{range . -}}\n{{.Key}} {{.Fields.Summary}}\n{{end}}\n{{end}}`
+	outputTemplate = `[[ if ne (len .) 0 ]]Found [[ (len .) ]] new tickets\n[[range . -]]\n[[.Key]] [[.Fields.Summary]]\n[[end]]\n[[end]]`
 	knownIssues = "/tmp/sensu-jira-check"
 )
 
@@ -148,7 +148,7 @@ func checkFunc(event *types.Event) (int, error) {
 		}
 	}
 
-	tmpl, err := template.New("output").Parse(string(normalizeNewlines([]byte(config.outputTemplate))))
+	tmpl, err := template.New("output").Delims("[[", "]]").Parse(string(normalizeNewlines([]byte(config.outputTemplate))))
 	if err != nil {
 		return 2, err
 	}
