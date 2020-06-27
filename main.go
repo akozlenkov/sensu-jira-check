@@ -110,6 +110,10 @@ func checkArgs(_ *corev2.Event) (int, error) {
 	if len(config.jiraPassword) == 0 {
 		return 3, fmt.Errorf("--jira-password or JIRA_PASSWORD environment variable is required")
 	}
+
+	if len(config.jiraQuery) == 0 {
+		return 3, fmt.Errorf("--jira-query is required")
+	}
 	return 0, nil
 }
 
