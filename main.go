@@ -1,11 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/sensu/sensu-go/types"
 	"gopkg.in/andygrunwald/go-jira.v1"
 	"os"
-	"text/template"
+	"html/template"
 	"github.com/sensu-community/sensu-plugin-sdk/sensu"
 	corev2 "github.com/sensu/sensu-go/api/core/v2"
 	"github.com/prologic/bitcask"
@@ -22,13 +23,7 @@ type HandlerConfig struct {
 }
 
 const (
-	outputTemplate = `{{ if ne (len .) 0 }}
-Found {{ (len .) }} new tickets
-{{range . -}}
-{{.Key}} {{.Fields.Summary}}
-{{ "" }}
-{{- end}}
-{{end}}`
+	outputTemplate = `{{ if ne (len .) 0 }}Found {{ (len .) }} new tickets\n{{range . -}}\n{{.Key}} {{.Fields.Summary}}\n{{end}}\n{{end}}`
 	knownIssues = "/tmp/sensu-jira-check"
 )
 
@@ -153,7 +148,7 @@ func checkFunc(event *types.Event) (int, error) {
 		}
 	}
 
-	tmpl, err := template.New("output").Parse(config.outputTemplate)
+	tmpl, err := template.New("output").Parse(string(normalizeNewlines([]byte(config.outputTemplate))))
 	if err != nil {
 		return 2, err
 	}
@@ -168,4 +163,11 @@ func checkFunc(event *types.Event) (int, error) {
 func main()  {
 	check := sensu.NewGoCheck(&config.PluginConfig, configOptions, checkArgs, checkFunc, false)
 	check.Execute()
+}
+
+func normalizeNewlines(d []byte) []byte {
+	d = bytes.Replace(d, []byte(`\n`), []byte{10}, -1)
+	d = bytes.Replace(d, []byte{13, 10}, []byte{10}, -1)
+	d = bytes.Replace(d, []byte{13}, []byte{10}, -1)
+	return d
 }
