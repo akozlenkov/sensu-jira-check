@@ -6,7 +6,7 @@ import (
 	"github.com/sensu/sensu-go/types"
 	"gopkg.in/andygrunwald/go-jira.v1"
 	"os"
-	"html/template"
+	"text/template"
 	"github.com/sensu-community/sensu-plugin-sdk/sensu"
 	corev2 "github.com/sensu/sensu-go/api/core/v2"
 	"github.com/prologic/bitcask"
